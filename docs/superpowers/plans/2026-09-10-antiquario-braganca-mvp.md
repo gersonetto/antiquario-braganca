@@ -13,8 +13,11 @@ API behind one function, `fetchCatalog()`. The Next.js App Router fetches once p
 tree that does all search/filter/currency state client-side — mirroring the interaction
 model already validated in the Artifact mockup.
 
-**Tech Stack:** Next.js 15 (App Router) + TypeScript, Tailwind CSS 3, `googleapis` for
-Sheets access, Vitest for unit tests, deployed on Vercel.
+**Tech Stack:** Next.js 16 (App Router) + TypeScript, Tailwind CSS 4, `googleapis` for
+Sheets access, Vitest for unit tests, deployed on Vercel. (Task 1's `create-next-app@latest`
+installed Next 16 / Tailwind v4 rather than the 15/v3 originally anticipated — ruled
+acceptable, see ledger. Tailwind v4 uses `@import "tailwindcss"` in `globals.css` instead
+of v3's `@tailwind` directives; Task 8 accounts for this.)
 
 **Spec:** `docs/superpowers/specs/2026-09-10-antiquario-braganca-design.md`
 
@@ -980,25 +983,61 @@ git commit -m "feat: minimal catalog page with search and filters"
 
 - [ ] **Step 1: Importar as fontes no layout**
 
-Em `app/layout.tsx`, adicione dentro de `<head>` (ou via `next/font` se preferir — aqui
-usamos link direto, igual ao mockup, por simplicidade):
+Substitua **todo o conteúdo** de `app/layout.tsx` por (mantém as fontes Geist que o
+`create-next-app` já configurou — elas ficam sem uso nesta versão do tema, mas remover a
+configuração não é necessário; adiciona as fontes do tema via `<link>` direto, igual ao
+mockup, por simplicidade; corrige `lang` para `pt-BR` e o título/descrição da página):
 
 ```tsx
-<head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  />
-</head>
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Antiquário de Bragança",
+  description: "Catálogo de relíquias mágicas do Antiquário de Bragança",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html
+      lang="pt-BR"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
 ```
 
 - [ ] **Step 2: Tokens de cor em `app/globals.css`**
 
-No topo de `app/globals.css` (antes das diretivas `@tailwind`), adicione:
+O `create-next-app` deste projeto instalou Tailwind CSS v4, que usa `@import
+"tailwindcss";` em vez das diretivas `@tailwind` da v3 — substitua **todo o conteúdo**
+de `app/globals.css` (descartando o tema `--background`/`--foreground`/`@theme inline`
+gerado por padrão, que não usaremos) por:
 
 ```css
+@import "tailwindcss";
+
 :root {
   --bg: #ede3cb;
   --surface: #f5eedc;
