@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
 import { ItemCard } from './ItemCard';
+import { ModificationModal } from './ModificationModal';
 
 const RARITIES: { id: RaritySlug; label: string }[] = [
   { id: 'comum', label: 'Comum' },
@@ -24,6 +25,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
   const [search, setSearch] = useState('');
   const [rarities, setRarities] = useState<Set<RaritySlug>>(new Set());
   const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
+  const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
 
   function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
     const next = new Set(set);
@@ -111,10 +113,12 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
             </p>
           )}
           {filtered.map((item) => (
-            <ItemCard key={item.id} item={item} />
+            <ItemCard key={item.id} item={item} onOpenModification={setModalItem} />
           ))}
         </section>
       </div>
+
+      {modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}
     </main>
   );
 }
