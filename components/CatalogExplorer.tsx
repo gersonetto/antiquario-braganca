@@ -54,7 +54,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
         style={{ borderColor: 'var(--border)' }}
       >
         <label
-          className="flex min-w-[200px] flex-1 items-center gap-2 border px-3 py-2"
+          className="flex min-w-[200px] flex-1 items-center gap-2 border px-3 py-2 transition-colors duration-150"
           style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
         >
           <input
@@ -73,7 +73,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
               type="button"
               aria-pressed={rarities.has(r.id)}
               onClick={() => toggle(rarities, r.id, setRarities)}
-              className="border px-3 py-1.5 text-sm"
+              className="border px-3 py-1.5 text-sm transition-colors duration-150"
               style={{
                 borderColor: 'var(--border)',
                 background: rarities.has(r.id) ? `var(--rarity-${r.id})` : 'var(--surface)',
@@ -96,7 +96,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
               type="button"
               aria-pressed={categories.has(c.id)}
               onClick={() => toggle(categories, c.id, setCategories)}
-              className="border-l-2 px-3 py-2 text-left text-xs"
+              className="border-l-2 px-3 py-2 text-left text-xs transition-colors duration-150"
               style={{
                 fontFamily: "'Cinzel', serif",
                 borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',

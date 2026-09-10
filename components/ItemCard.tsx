@@ -29,7 +29,7 @@ export function ItemCard({
 }) {
   return (
     <article
-      className="relative flex flex-col gap-2 border p-4"
+      className="card-hover relative flex flex-col gap-2 border p-4"
       style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
     >
       <span
@@ -46,8 +46,8 @@ export function ItemCard({
           type="button"
           aria-label={`Ver anotação do mestre sobre ${item.name}`}
           onClick={() => onOpenModification(item)}
-          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-xs"
-          style={{ background: 'var(--seal)', color: 'var(--surface)' }}
+          className="seal-hover absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-xs"
+          style={{ background: 'var(--mod)', color: 'var(--surface)' }}
         >
           ✦
         </button>
@@ -55,8 +55,8 @@ export function ItemCard({
       {item.modification?.kind === 'simples' && (
         <span
           title="Atributos ajustados pelo mestre"
-          className="absolute right-2 top-2 text-xs"
-          style={{ color: 'var(--ink-muted)' }}
+          className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-xs"
+          style={{ border: '1.5px solid var(--mod)', color: 'var(--mod)' }}
         >
           ✦
         </span>

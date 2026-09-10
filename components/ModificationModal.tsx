@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import type { CatalogItem } from '@/lib/catalog/types';
 
 export function ModificationModal({
@@ -33,6 +36,7 @@ export function ModificationModal({
         justifyContent: 'center',
         padding: 20,
         zIndex: 10,
+        animation: 'backdrop-in 0.15s ease-out',
       }}
     >
       <div
@@ -43,15 +47,19 @@ export function ModificationModal({
         style={{
           background: 'var(--surface)',
           border: '1px solid var(--gold)',
-          maxWidth: 420,
+          maxWidth: 520,
           width: '100%',
+          maxHeight: '80vh',
+          overflowY: 'auto',
           padding: '26px',
+          animation: 'modal-in 0.2s ease-out',
         }}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
+          className="seal-hover"
           style={{
             color: 'var(--ink-muted)',
             fontSize: '0.8rem',
@@ -63,11 +71,27 @@ export function ModificationModal({
         >
           Fechar ✕
         </button>
-        <p style={{ color: 'var(--seal)' }}>Anotação do mestre</p>
-        <h2 id="modal-title" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <p style={{ color: 'var(--mod)' }}>Anotação do mestre</p>
+        <h2
+          id="modal-title"
+          style={{ fontFamily: "'Cormorant Garamond', serif", marginBottom: '0.6em' }}
+        >
           {item.name}
         </h2>
-        <p style={{ fontFamily: "'Cormorant Garamond', serif" }}>{item.modification.text}</p>
+        <div className="modal-prose">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkBreaks]}
+            components={{
+              table: (props) => (
+                <div className="table-wrap">
+                  <table {...props} />
+                </div>
+              ),
+            }}
+          >
+            {item.modification.text ?? ''}
+          </ReactMarkdown>
+        </div>
       </div>
     </div>
   );

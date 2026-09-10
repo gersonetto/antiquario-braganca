@@ -12,8 +12,8 @@ const CURRENCY_FACTOR: Record<CurrencyMode, number> = { braganca: 0.1, dnd: 1 };
 /**
  * Quebra um valor em ouro (po) fracionário nas 4 moedas do sistema. O decimal vira
  * prata, o resto da prata vira cobre — arredondado só no final da cadeia — e, quando o
- * valor em ouro passa de 1000, o excedente vira platina na razão padrão de D&D
- * (1 pp = 10 po). Ver spec §6.1 para a régua completa.
+ * valor em ouro passa de 1000, cada milhar completo vira 100 de platina (a platina só
+ * aparece em múltiplos de 100 — nunca um valor quebrado). Ver spec §6.1.
  */
 export function breakIntoCoins(rawGp: number, mode: CurrencyMode): CoinBreakdown {
   const gp = rawGp * CURRENCY_FACTOR[mode];
@@ -37,8 +37,9 @@ export function breakIntoCoins(rawGp: number, mode: CurrencyMode): CoinBreakdown
 
   let ppWhole = 0;
   if (poWhole >= 1000) {
-    ppWhole = Math.floor(poWhole / 10);
-    poWhole = poWhole % 10;
+    const milhares = Math.floor(poWhole / 1000);
+    ppWhole = milhares * 100;
+    poWhole = poWhole % 1000;
   }
 
   return { pp: ppWhole, po: poWhole, pr: prWhole, pc: pcWhole };

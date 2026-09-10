@@ -6,9 +6,17 @@ describe('breakIntoCoins', () => {
     expect(breakIntoCoins(199.53, 'dnd')).toEqual({ pp: 0, po: 199, pr: 5, pc: 3 });
   });
 
-  it('quebra em platina quando o valor em ouro passa de 1000 (razão 1pp=10po)', () => {
-    // exemplo da spec: 7878,3554 -> 787 pp, 8 po, 3 pr, 6 pc
-    expect(breakIntoCoins(7878.3554, 'dnd')).toEqual({ pp: 787, po: 8, pr: 3, pc: 6 });
+  it('quebra em platina quando o valor em ouro passa de 1000, só em múltiplos de 100', () => {
+    // 7878,3554 -> 7 milhares completos -> 700 pp, sobra 878 po, 3 pr, 6 pc
+    expect(breakIntoCoins(7878.3554, 'dnd')).toEqual({ pp: 700, po: 878, pr: 3, pc: 6 });
+  });
+
+  it('platina nunca fica com valor quebrado, sempre múltiplo de 100', () => {
+    // 2500,5 -> 2 milhares completos -> 200 pp, sobra 500 po
+    const result = breakIntoCoins(2500.5, 'dnd');
+    expect(result.pp).toBe(200);
+    expect(result.pp % 100).toBe(0);
+    expect(result.po).toBe(500);
   });
 
   it('não quebra em platina abaixo de 1000', () => {

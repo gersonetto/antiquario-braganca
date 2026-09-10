@@ -15,7 +15,7 @@ export function CurrencyToggle({
         type="button"
         aria-pressed={mode === 'braganca'}
         onClick={() => onChange('braganca')}
-        className="border px-3 py-1.5 text-sm"
+        className="border px-3 py-1.5 text-sm transition-colors duration-150"
         style={{
           borderColor: 'var(--border)',
           background: mode === 'braganca' ? 'var(--brand)' : 'var(--surface)',
@@ -28,7 +28,7 @@ export function CurrencyToggle({
         type="button"
         aria-pressed={mode === 'dnd'}
         onClick={() => onChange('dnd')}
-        className="border px-3 py-1.5 text-sm"
+        className="border px-3 py-1.5 text-sm transition-colors duration-150"
         style={{
           borderColor: 'var(--border)',
           background: mode === 'dnd' ? 'var(--brand)' : 'var(--surface)',
