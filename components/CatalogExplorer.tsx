@@ -35,6 +35,25 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
     });
   }, [items, search, rarities, categories]);
 
+  // Contagem por categoria considerando busca e raridade (mas não a própria seleção
+  // de categoria), pra mostrar "quantos itens teria se eu marcasse essa categoria".
+  const categoryCounts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const counts: Record<CategorySlug, number> = {
+      arcana: 0,
+      armamentos: 0,
+      implementos: 0,
+      reliquias: 0,
+      consumiveis: 0,
+    };
+    for (const item of items) {
+      if (q && !item.name.toLowerCase().includes(q)) continue;
+      if (rarities.size && !rarities.has(item.rarity)) continue;
+      for (const c of item.categories) counts[c]++;
+    }
+    return counts;
+  }, [items, search, rarities]);
+
   return (
     <main className="mx-auto max-w-6xl px-6 pb-16" style={{ color: 'var(--ink)' }}>
       <div
@@ -86,7 +105,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
               type="button"
               aria-pressed={categories.has(c.id)}
               onClick={() => toggle(categories, c.id, setCategories)}
-              className="border-l-2 px-3 py-2 text-left text-xs transition-colors duration-150"
+              className="flex items-center justify-between gap-2 border-l-2 px-3 py-2 text-left text-xs transition-colors duration-150"
               style={{
                 fontFamily: "'Cinzel', serif",
                 borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',
@@ -94,29 +113,41 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
                 color: categories.has(c.id) ? 'var(--ink)' : 'var(--ink-muted)',
               }}
             >
-              {c.label}
+              <span>{c.label}</span>
+              <span
+                className="font-sans"
+                style={{ color: 'var(--ink-muted)', fontVariantNumeric: 'tabular-nums' }}
+              >
+                {categoryCounts[c.id]}
+              </span>
             </button>
           ))}
         </nav>
 
-        <section
-          className="grid gap-4"
-          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))' }}
-        >
-          {filtered.length === 0 && (
-            <p style={{ color: 'var(--ink-muted)' }}>
-              Nenhuma relíquia encontrada com esses filtros.
-            </p>
-          )}
-          {filtered.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              currency={currency}
-              onOpenModification={setModalItem}
-            />
-          ))}
-        </section>
+        <div className="flex flex-col gap-4">
+          <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+            {filtered.length} {filtered.length === 1 ? 'relíquia encontrada' : 'relíquias encontradas'}
+          </p>
+
+          <section
+            className="grid gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))' }}
+          >
+            {filtered.length === 0 && (
+              <p style={{ color: 'var(--ink-muted)' }}>
+                Nenhuma relíquia encontrada com esses filtros.
+              </p>
+            )}
+            {filtered.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                currency={currency}
+                onOpenModification={setModalItem}
+              />
+            ))}
+          </section>
+        </div>
       </div>
 
       {modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}

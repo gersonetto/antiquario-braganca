@@ -91,7 +91,7 @@ export function SorteioModal({
             id="sorteio-title"
             style={{ fontFamily: "'Cinzel', serif", fontSize: '1.1rem', letterSpacing: '0.03em' }}
           >
-            Sorteio do Relicário
+            Invocação do Relicário
           </h1>
           <button
             type="button"

@@ -12,7 +12,7 @@ export function SorteioButton({ onClick }: { onClick: () => void }) {
         borderColor: 'var(--gold)',
       }}
     >
-      ✦ Sorteio
+      ✦ Invocar
     </button>
   );
 }
