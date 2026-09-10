@@ -126,7 +126,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
 
         <div className="flex flex-col gap-4">
           <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
-            {filtered.length} {filtered.length === 1 ? 'relíquia encontrada' : 'relíquias encontradas'}
+            {filtered.length} {filtered.length === 1 ? 'item encontrado' : 'itens encontrados'}
           </p>
 
           <section
@@ -135,7 +135,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
           >
             {filtered.length === 0 && (
               <p style={{ color: 'var(--ink-muted)' }}>
-                Nenhuma relíquia encontrada com esses filtros.
+                Nenhum item encontrado com esses filtros.
               </p>
             )}
             {filtered.map((item) => (

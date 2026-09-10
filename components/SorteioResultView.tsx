@@ -52,14 +52,14 @@ export function SorteioResultView({
 
       {result.length < expected && (
         <p className="text-xs italic" style={{ color: 'var(--mod)' }}>
-          Só {result.length} {result.length === 1 ? 'relíquia disponível' : 'relíquias disponíveis'}{' '}
+          Só {result.length} {result.length === 1 ? 'item disponível' : 'itens disponíveis'}{' '}
           nessa combinação de raridade e temática.
         </p>
       )}
 
       {result.length === 0 ? (
         <p style={{ color: 'var(--ink-muted)' }}>
-          Nenhuma relíquia encontrada para essa raridade e temática.
+          Nenhum item encontrado para essa raridade e temática.
         </p>
       ) : (
         <div
