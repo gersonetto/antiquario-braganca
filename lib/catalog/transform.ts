@@ -22,9 +22,12 @@ export function rowToCatalogItem(row: unknown[], rarity: RaritySlug): CatalogIte
   );
 
   const rd: Partial<Record<CategorySlug, number>> = {};
-  for (const c of RD_COLUMNS) {
-    const value = row[c.index];
-    if (typeof value === 'number') rd[c.slug] = value;
+  for (const category of CATEGORY_COLUMNS) {
+    if (row[category.index] === true) {
+      const rdColumn = RD_COLUMNS.find(r => r.slug === category.slug)!;
+      const value = row[rdColumn.index];
+      if (typeof value === 'number') rd[category.slug] = value;
+    }
   }
 
   const modKind = row[11] as string | undefined;

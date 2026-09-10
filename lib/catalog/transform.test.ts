@@ -69,4 +69,12 @@ describe('rowToCatalogItem', () => {
     const item = rowToCatalogItem(row, 'comum');
     expect(item.source).toBeNull();
   });
+
+  it('não inclui RD para categoria marcada como false, mesmo com número na coluna RD', () => {
+    const row = baseRow({ 6: false, 18: 5 });
+    const item = rowToCatalogItem(row, 'comum');
+    expect(item.categories).toEqual(['arcana', 'armamentos', 'implementos', 'reliquias']);
+    expect(item.rd).toEqual({ arcana: 1, armamentos: 3, implementos: 2, reliquias: 1 });
+    expect('consumiveis' in item.rd).toBe(false);
+  });
 });
