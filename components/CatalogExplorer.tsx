@@ -3,25 +3,12 @@
 import { useMemo, useState } from 'react';
 import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
 import type { CurrencyMode } from '@/lib/currency/breakIntoCoins';
+import { RARITIES, CATEGORIES } from '@/lib/catalog/options';
 import { ItemCard } from './ItemCard';
 import { ModificationModal } from './ModificationModal';
 import { CurrencyToggle } from './CurrencyToggle';
-
-const RARITIES: { id: RaritySlug; label: string }[] = [
-  { id: 'comum', label: 'Comum' },
-  { id: 'incomum', label: 'Incomum' },
-  { id: 'raro', label: 'Raro' },
-  { id: 'muitoraro', label: 'Muito Raro' },
-  { id: 'lendario', label: 'Lendário' },
-];
-
-const CATEGORIES: { id: CategorySlug; label: string }[] = [
-  { id: 'arcana', label: 'Arcana' },
-  { id: 'armamentos', label: 'Armamentos' },
-  { id: 'implementos', label: 'Implementos' },
-  { id: 'reliquias', label: 'Relíquias' },
-  { id: 'consumiveis', label: 'Consumíveis' },
-];
+import { SorteioButton } from './SorteioButton';
+import { SorteioModal } from './SorteioModal';
 
 export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
   const [search, setSearch] = useState('');
@@ -29,6 +16,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
   const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
   const [currency, setCurrency] = useState<CurrencyMode>('braganca');
   const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
+  const [sorteioOpen, setSorteioOpen] = useState(false);
 
   function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
     const next = new Set(set);
@@ -86,6 +74,8 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
         </div>
 
         <CurrencyToggle mode={currency} onChange={setCurrency} />
+
+        <SorteioButton onClick={() => setSorteioOpen(true)} />
       </div>
 
       <div className="grid grid-cols-[168px_1fr] gap-8">
@@ -130,6 +120,9 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
       </div>
 
       {modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}
+      {sorteioOpen && (
+        <SorteioModal items={items} currency={currency} onClose={() => setSorteioOpen(false)} />
+      )}
     </main>
   );
 }
