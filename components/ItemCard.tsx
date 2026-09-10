@@ -1,4 +1,6 @@
 import type { CatalogItem } from '@/lib/catalog/types';
+import type { CurrencyMode } from '@/lib/currency/breakIntoCoins';
+import { Coins } from './Coins';
 
 const RARITY_LABEL: Record<CatalogItem['rarity'], string> = {
   comum: 'Comum',
@@ -18,9 +20,11 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export function ItemCard({
   item,
+  currency,
   onOpenModification,
 }: {
   item: CatalogItem;
+  currency: CurrencyMode;
   onOpenModification: (item: CatalogItem) => void;
 }) {
   return (
@@ -77,9 +81,7 @@ export function ItemCard({
       </p>
 
       <div className="mt-auto flex items-end justify-between gap-2 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
-          {item.priceGp.toFixed(2)} po
-        </span>
+        <Coins priceGp={item.priceGp} mode={currency} />
       </div>
 
       {item.source && (

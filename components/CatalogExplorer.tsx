@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
+import type { CurrencyMode } from '@/lib/currency/breakIntoCoins';
 import { ItemCard } from './ItemCard';
 import { ModificationModal } from './ModificationModal';
+import { CurrencyToggle } from './CurrencyToggle';
 
 const RARITIES: { id: RaritySlug; label: string }[] = [
   { id: 'comum', label: 'Comum' },
@@ -25,6 +27,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
   const [search, setSearch] = useState('');
   const [rarities, setRarities] = useState<Set<RaritySlug>>(new Set());
   const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
+  const [currency, setCurrency] = useState<CurrencyMode>('braganca');
   const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
 
   function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
@@ -81,6 +84,8 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
             </button>
           ))}
         </div>
+
+        <CurrencyToggle mode={currency} onChange={setCurrency} />
       </div>
 
       <div className="grid grid-cols-[168px_1fr] gap-8">
@@ -113,7 +118,12 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
             </p>
           )}
           {filtered.map((item) => (
-            <ItemCard key={item.id} item={item} onOpenModification={setModalItem} />
+            <ItemCard
+              key={item.id}
+              item={item}
+              currency={currency}
+              onOpenModification={setModalItem}
+            />
           ))}
         </section>
       </div>
