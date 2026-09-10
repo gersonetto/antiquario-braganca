@@ -98,6 +98,7 @@ export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
               onClick={() => toggle(categories, c.id, setCategories)}
               className="border-l-2 px-3 py-2 text-left text-xs"
               style={{
+                fontFamily: "'Cinzel', serif",
                 borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',
                 background: categories.has(c.id) ? 'var(--surface)' : 'transparent',
                 color: categories.has(c.id) ? 'var(--ink)' : 'var(--ink-muted)',

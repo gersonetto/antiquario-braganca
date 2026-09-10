@@ -77,4 +77,38 @@ describe('rowToCatalogItem', () => {
     expect(item.rd).toEqual({ arcana: 1, armamentos: 3, implementos: 2, reliquias: 1 });
     expect('consumiveis' in item.rd).toBe(false);
   });
+
+  it('trata a string "TRUE" como marcada para categorias e Attun', () => {
+    const row = baseRow({ 2: 'TRUE', 3: 'TRUE', 4: 'TRUE', 5: 'TRUE', 6: 'TRUE', 8: 'TRUE' });
+    const item = rowToCatalogItem(row, 'comum');
+    expect(item.categories).toEqual([
+      'arcana',
+      'armamentos',
+      'implementos',
+      'reliquias',
+      'consumiveis',
+    ]);
+    expect(item.attun).toBe(true);
+  });
+
+  it('trata a string "VERDADEIRO" como marcada para categorias e Attun', () => {
+    const row = baseRow({ 2: 'VERDADEIRO', 3: false, 4: false, 5: false, 6: false, 8: 'VERDADEIRO' });
+    const item = rowToCatalogItem(row, 'comum');
+    expect(item.categories).toEqual(['arcana']);
+    expect(item.attun).toBe(true);
+  });
+
+  it('trata o número 1 como marcado para categorias e Attun', () => {
+    const row = baseRow({ 2: 1, 3: false, 4: false, 5: false, 6: false, 8: 1 });
+    const item = rowToCatalogItem(row, 'comum');
+    expect(item.categories).toEqual(['arcana']);
+    expect(item.attun).toBe(true);
+  });
+
+  it('trata "false", 0, null e undefined como não marcados para categorias e Attun', () => {
+    const row = baseRow({ 2: 'false', 3: 0, 4: null, 5: undefined, 6: false, 8: 'false' });
+    const item = rowToCatalogItem(row, 'comum');
+    expect(item.categories).toEqual([]);
+    expect(item.attun).toBe(false);
+  });
 });

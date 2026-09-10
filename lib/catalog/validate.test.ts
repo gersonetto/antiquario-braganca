@@ -55,4 +55,9 @@ describe('validateCatalog', () => {
     ];
     expect(() => validateCatalog(items)).not.toThrow();
   });
+
+  it('lança erro para priceGp não finito (NaN)', () => {
+    const items = [item({ id: 'COM-001', priceGp: NaN })];
+    expect(() => validateCatalog(items)).toThrow(CatalogValidationError);
+  });
 });

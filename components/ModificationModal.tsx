@@ -48,7 +48,19 @@ export function ModificationModal({
           padding: '26px',
         }}
       >
-        <button type="button" onClick={onClose} aria-label="Fechar">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fechar"
+          style={{
+            color: 'var(--ink-muted)',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+          }}
+        >
           Fechar ✕
         </button>
         <p style={{ color: 'var(--seal)' }}>Anotação do mestre</p>

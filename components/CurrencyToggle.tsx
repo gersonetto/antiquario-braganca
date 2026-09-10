@@ -15,10 +15,26 @@ export function CurrencyToggle({
         type="button"
         aria-pressed={mode === 'braganca'}
         onClick={() => onChange('braganca')}
+        className="border px-3 py-1.5 text-sm"
+        style={{
+          borderColor: 'var(--border)',
+          background: mode === 'braganca' ? 'var(--brand)' : 'var(--surface)',
+          color: mode === 'braganca' ? 'var(--brand-ink)' : 'var(--ink)',
+        }}
       >
         Economia de Bragança
       </button>
-      <button type="button" aria-pressed={mode === 'dnd'} onClick={() => onChange('dnd')}>
+      <button
+        type="button"
+        aria-pressed={mode === 'dnd'}
+        onClick={() => onChange('dnd')}
+        className="border px-3 py-1.5 text-sm"
+        style={{
+          borderColor: 'var(--border)',
+          background: mode === 'dnd' ? 'var(--brand)' : 'var(--surface)',
+          color: mode === 'dnd' ? 'var(--brand-ink)' : 'var(--ink)',
+        }}
+      >
         Padrão D&amp;D
       </button>
     </div>

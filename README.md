@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Antiquário de Relíquias Mágicas de Bragança
 
-## Getting Started
+Catálogo web de itens mágicos para uma campanha de D&D, alimentado por uma planilha do
+Google Sheets que o mestre mantém como fonte da verdade. O app (Next.js, App Router) lê a
+planilha em tempo de build/revalidação, transforma cada linha em um item de catálogo, valida
+consistência (IDs únicos, RD sem duplicidade, preços válidos) e renderiza uma vitrine
+pesquisável e filtrável com dois sistemas de moeda (Economia de Bragança e Padrão D&D).
 
-First, run the development server:
+## Configuração
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Copie `.env.example` para `.env.local` e preencha as quatro variáveis obrigatórias:
+
+| Variável | Descrição |
+| --- | --- |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | E-mail da service account do Google Cloud usada para ler a planilha. |
+| `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` | Chave privada (PEM) da mesma service account. |
+| `GOOGLE_SHEETS_SPREADSHEET_ID` | ID da planilha do Google Sheets (retirado da URL da planilha). |
+| `REVALIDATE_SECRET` | Segredo usado para autorizar a revalidação manual (veja abaixo). |
+
+**A planilha do Google Sheets precisa ser compartilhada com o e-mail da service account
+(`GOOGLE_SERVICE_ACCOUNT_EMAIL`) com permissão de "Leitor" (viewer).** Sem isso, a leitura da
+planilha falha com erro de permissão.
+
+## Revalidação (ISR)
+
+A página inicial usa Incremental Static Regeneration com `revalidate = 300`, ou seja, o
+catálogo é automaticamente revalidado a cada 5 minutos — qualquer alteração feita na planilha
+aparece no site em até esse intervalo, sem necessidade de novo deploy.
+
+Para forçar a revalidação imediatamente (por exemplo, logo após editar a planilha), chame:
+
+```
+GET /api/revalidate?secret=<REVALIDATE_SECRET>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+usando o valor configurado em `REVALIDATE_SECRET`. A resposta é `{ ok: true, revalidated: true }`
+em caso de sucesso, ou `401` se o segredo estiver incorreto ou não configurado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install       # instala as dependências
+npm run dev       # inicia o servidor de desenvolvimento em http://localhost:3000
+npm test          # roda a suíte de testes (vitest)
+npm run build     # gera o build de produção
+```

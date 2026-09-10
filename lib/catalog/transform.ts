@@ -16,14 +16,24 @@ const RD_COLUMNS: { index: number; slug: CategorySlug }[] = [
   { index: 18, slug: 'consumiveis' },
 ];
 
+function isTruthyCell(value: unknown): boolean {
+  if (value === true) return true;
+  if (typeof value === 'number') return value === 1;
+  if (typeof value === 'string') {
+    const v = value.trim().toUpperCase();
+    return v === 'TRUE' || v === 'VERDADEIRO';
+  }
+  return false;
+}
+
 export function rowToCatalogItem(row: unknown[], rarity: RaritySlug): CatalogItem {
-  const categories = CATEGORY_COLUMNS.filter((c) => row[c.index] === true).map(
+  const categories = CATEGORY_COLUMNS.filter((c) => isTruthyCell(row[c.index])).map(
     (c) => c.slug
   );
 
   const rd: Partial<Record<CategorySlug, number>> = {};
   for (const category of CATEGORY_COLUMNS) {
-    if (row[category.index] === true) {
+    if (isTruthyCell(row[category.index])) {
       const rdColumn = RD_COLUMNS.find(r => r.slug === category.slug)!;
       const value = row[rdColumn.index];
       if (typeof value === 'number') rd[category.slug] = value;
@@ -46,7 +56,7 @@ export function rowToCatalogItem(row: unknown[], rarity: RaritySlug): CatalogIte
     rarity,
     categories,
     priceGp: Number(row[7]),
-    attun: row[8] === true,
+    attun: isTruthyCell(row[8]),
     type: String(row[9] ?? ''),
     source: (row[10] as string | undefined) || null,
     modification,

@@ -11,6 +11,14 @@ export function validateCatalog(items: CatalogItem[]): void {
     ids.add(item.id);
   }
 
+  for (const item of items) {
+    if (!Number.isFinite(item.priceGp)) {
+      throw new CatalogValidationError(
+        `Preço inválido para "${item.name}" (${item.id}): ${item.priceGp}`
+      );
+    }
+  }
+
   const rdSeen = new Map<string, string>();
   for (const item of items) {
     for (const [category, rd] of Object.entries(item.rd)) {
