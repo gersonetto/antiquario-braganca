@@ -1118,11 +1118,130 @@ export function ItemCard({ item }: { item: CatalogItem }) {
 
 - [ ] **Step 4: Aplicar layout temático em `CatalogExplorer.tsx`**
 
-Em `components/CatalogExplorer.tsx`, adicione classes ao `<main>`, `<input>`, régua de
-categorias e `<section>` de resultado, seguindo o mesmo padrão de `style={{ background:
-'var(--surface)', ... }}` usado no `ItemCard`. Envolva a grade num `<div className="grid"
-style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))', gap: '18px' }}>`
-igual ao mockup.
+Substitua **todo o conteúdo** de `components/CatalogExplorer.tsx` por:
+
+```tsx
+'use client';
+
+import { useMemo, useState } from 'react';
+import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
+import { ItemCard } from './ItemCard';
+
+const RARITIES: { id: RaritySlug; label: string }[] = [
+  { id: 'comum', label: 'Comum' },
+  { id: 'incomum', label: 'Incomum' },
+  { id: 'raro', label: 'Raro' },
+  { id: 'muitoraro', label: 'Muito Raro' },
+  { id: 'lendario', label: 'Lendário' },
+];
+
+const CATEGORIES: { id: CategorySlug; label: string }[] = [
+  { id: 'arcana', label: 'Arcana' },
+  { id: 'armamentos', label: 'Armamentos' },
+  { id: 'implementos', label: 'Implementos' },
+  { id: 'reliquias', label: 'Relíquias' },
+  { id: 'consumiveis', label: 'Consumíveis' },
+];
+
+export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
+  const [search, setSearch] = useState('');
+  const [rarities, setRarities] = useState<Set<RaritySlug>>(new Set());
+  const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
+
+  function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
+    const next = new Set(set);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    setSet(next);
+  }
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((item) => {
+      if (q && !item.name.toLowerCase().includes(q)) return false;
+      if (rarities.size && !rarities.has(item.rarity)) return false;
+      if (categories.size && !item.categories.some((c) => categories.has(c))) return false;
+      return true;
+    });
+  }, [items, search, rarities, categories]);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 pb-16" style={{ color: 'var(--ink)' }}>
+      <div
+        className="mb-6 flex flex-wrap items-center gap-4 border-b py-4"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <label
+          className="flex min-w-[200px] flex-1 items-center gap-2 border px-3 py-2"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+        >
+          <input
+            type="text"
+            placeholder="Buscar por nome do item…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </label>
+
+        <div role="group" aria-label="Raridade" className="flex flex-wrap gap-2">
+          {RARITIES.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              aria-pressed={rarities.has(r.id)}
+              onClick={() => toggle(rarities, r.id, setRarities)}
+              className="border px-3 py-1.5 text-sm"
+              style={{
+                borderColor: 'var(--border)',
+                background: rarities.has(r.id) ? `var(--rarity-${r.id})` : 'var(--surface)',
+                color: rarities.has(r.id) ? 'var(--surface)' : 'var(--ink)',
+              }}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[168px_1fr] gap-8">
+        <nav aria-label="Categorias" className="flex flex-col gap-1">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              aria-pressed={categories.has(c.id)}
+              onClick={() => toggle(categories, c.id, setCategories)}
+              className="border-l-2 px-3 py-2 text-left text-xs"
+              style={{
+                borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',
+                background: categories.has(c.id) ? 'var(--surface)' : 'transparent',
+                color: categories.has(c.id) ? 'var(--ink)' : 'var(--ink-muted)',
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+
+        <section
+          className="grid gap-4"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))' }}
+        >
+          {filtered.length === 0 && (
+            <p style={{ color: 'var(--ink-muted)' }}>
+              Nenhuma relíquia encontrada com esses filtros.
+            </p>
+          )}
+          {filtered.map((item) => (
+            <ItemCard key={item.id} item={item} />
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
+```
 
 - [ ] **Step 5: Verificar manualmente**
 
@@ -1226,9 +1345,27 @@ apenas informativo, sem clique, na Task de `ItemCard` abaixo.
 
 - [ ] **Step 2: Adicionar o selo em `ItemCard.tsx`**
 
-Em `components/ItemCard.tsx`, adicione a prop `onOpenModification` e renderize:
+Substitua **todo o conteúdo** de `components/ItemCard.tsx` por:
 
 ```tsx
+import type { CatalogItem } from '@/lib/catalog/types';
+
+const RARITY_LABEL: Record<CatalogItem['rarity'], string> = {
+  comum: 'Comum',
+  incomum: 'Incomum',
+  raro: 'Raro',
+  muitoraro: 'Muito Raro',
+  lendario: 'Lendário',
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  arcana: 'Arcana',
+  armamentos: 'Armamentos',
+  implementos: 'Implementos',
+  reliquias: 'Relíquias',
+  consumiveis: 'Consumíveis',
+};
+
 export function ItemCard({
   item,
   onOpenModification,
@@ -1236,24 +1373,27 @@ export function ItemCard({
   item: CatalogItem;
   onOpenModification: (item: CatalogItem) => void;
 }) {
-  // ...
   return (
-    <article /* ...igual à Task 8... */>
+    <article
+      className="relative flex flex-col gap-2 border p-4"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+    >
+      <span
+        className="absolute right-0 top-0 h-0 w-0"
+        style={{
+          borderStyle: 'solid',
+          borderWidth: '0 22px 22px 0',
+          borderColor: `transparent var(--rarity-${item.rarity}) transparent transparent`,
+        }}
+      />
+
       {item.modification?.kind === 'completa' && (
         <button
           type="button"
           aria-label={`Ver anotação do mestre sobre ${item.name}`}
           onClick={() => onOpenModification(item)}
-          style={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            background: 'var(--seal)',
-            color: 'var(--surface)',
-          }}
+          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-xs"
+          style={{ background: 'var(--seal)', color: 'var(--surface)' }}
         >
           ✦
         </button>
@@ -1261,12 +1401,42 @@ export function ItemCard({
       {item.modification?.kind === 'simples' && (
         <span
           title="Atributos ajustados pelo mestre"
-          style={{ position: 'absolute', top: 8, right: 8, fontSize: 12, color: 'var(--ink-muted)' }}
+          className="absolute right-2 top-2 text-xs"
+          style={{ color: 'var(--ink-muted)' }}
         >
           ✦
         </span>
       )}
-      {/* ...resto do card igual à Task 8... */}
+
+      <div className="flex items-baseline justify-between text-xs">
+        <span style={{ color: 'var(--ink-muted)' }}>
+          {item.categories.map((c) => CATEGORY_LABEL[c]).join(', ')}
+        </span>
+        <span style={{ color: `var(--rarity-${item.rarity})` }}>
+          {RARITY_LABEL[item.rarity]}
+        </span>
+      </div>
+
+      <h3 className="text-xl" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+        {item.name}
+      </h3>
+
+      <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+        {item.type}
+        {item.attun ? ' · Sintonia' : ''}
+      </p>
+
+      <div className="mt-auto flex items-end justify-between gap-2 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          {item.priceGp.toFixed(2)} po
+        </span>
+      </div>
+
+      {item.source && (
+        <p className="text-right text-xs italic" style={{ color: 'var(--ink-muted)' }}>
+          Proveniência: {item.source}
+        </p>
+      )}
     </article>
   );
 }
@@ -1274,20 +1444,134 @@ export function ItemCard({
 
 - [ ] **Step 3: Ligar o estado do modal em `CatalogExplorer.tsx`**
 
-Em `components/CatalogExplorer.tsx`, adicione:
+Substitua **todo o conteúdo** de `components/CatalogExplorer.tsx` por:
 
 ```tsx
-const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
+'use client';
+
+import { useMemo, useState } from 'react';
+import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
+import { ItemCard } from './ItemCard';
+import { ModificationModal } from './ModificationModal';
+
+const RARITIES: { id: RaritySlug; label: string }[] = [
+  { id: 'comum', label: 'Comum' },
+  { id: 'incomum', label: 'Incomum' },
+  { id: 'raro', label: 'Raro' },
+  { id: 'muitoraro', label: 'Muito Raro' },
+  { id: 'lendario', label: 'Lendário' },
+];
+
+const CATEGORIES: { id: CategorySlug; label: string }[] = [
+  { id: 'arcana', label: 'Arcana' },
+  { id: 'armamentos', label: 'Armamentos' },
+  { id: 'implementos', label: 'Implementos' },
+  { id: 'reliquias', label: 'Relíquias' },
+  { id: 'consumiveis', label: 'Consumíveis' },
+];
+
+export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
+  const [search, setSearch] = useState('');
+  const [rarities, setRarities] = useState<Set<RaritySlug>>(new Set());
+  const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
+  const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
+
+  function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
+    const next = new Set(set);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    setSet(next);
+  }
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((item) => {
+      if (q && !item.name.toLowerCase().includes(q)) return false;
+      if (rarities.size && !rarities.has(item.rarity)) return false;
+      if (categories.size && !item.categories.some((c) => categories.has(c))) return false;
+      return true;
+    });
+  }, [items, search, rarities, categories]);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 pb-16" style={{ color: 'var(--ink)' }}>
+      <div
+        className="mb-6 flex flex-wrap items-center gap-4 border-b py-4"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <label
+          className="flex min-w-[200px] flex-1 items-center gap-2 border px-3 py-2"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+        >
+          <input
+            type="text"
+            placeholder="Buscar por nome do item…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </label>
+
+        <div role="group" aria-label="Raridade" className="flex flex-wrap gap-2">
+          {RARITIES.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              aria-pressed={rarities.has(r.id)}
+              onClick={() => toggle(rarities, r.id, setRarities)}
+              className="border px-3 py-1.5 text-sm"
+              style={{
+                borderColor: 'var(--border)',
+                background: rarities.has(r.id) ? `var(--rarity-${r.id})` : 'var(--surface)',
+                color: rarities.has(r.id) ? 'var(--surface)' : 'var(--ink)',
+              }}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[168px_1fr] gap-8">
+        <nav aria-label="Categorias" className="flex flex-col gap-1">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              aria-pressed={categories.has(c.id)}
+              onClick={() => toggle(categories, c.id, setCategories)}
+              className="border-l-2 px-3 py-2 text-left text-xs"
+              style={{
+                borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',
+                background: categories.has(c.id) ? 'var(--surface)' : 'transparent',
+                color: categories.has(c.id) ? 'var(--ink)' : 'var(--ink-muted)',
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+
+        <section
+          className="grid gap-4"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))' }}
+        >
+          {filtered.length === 0 && (
+            <p style={{ color: 'var(--ink-muted)' }}>
+              Nenhuma relíquia encontrada com esses filtros.
+            </p>
+          )}
+          {filtered.map((item) => (
+            <ItemCard key={item.id} item={item} onOpenModification={setModalItem} />
+          ))}
+        </section>
+      </div>
+
+      {modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}
+    </main>
+  );
+}
 ```
-
-Passe `onOpenModification={setModalItem}` para cada `<ItemCard>`, e renderize no fim do
-`<main>`:
-
-```tsx
-{modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}
-```
-
-Não esqueça de importar `ModificationModal` no topo do arquivo.
 
 - [ ] **Step 4: Verificar manualmente**
 
@@ -1387,25 +1671,245 @@ export function CurrencyToggle({
 
 - [ ] **Step 3: Ligar tudo em `CatalogExplorer.tsx`**
 
-Adicione o estado e passe adiante:
+Substitua **todo o conteúdo** de `components/CatalogExplorer.tsx` por:
 
 ```tsx
-const [currency, setCurrency] = useState<CurrencyMode>('braganca');
-```
+'use client';
 
-Renderize `<CurrencyToggle mode={currency} onChange={setCurrency} />` perto da busca, e
-passe `currency={currency}` para cada `<ItemCard>`. Importe `CurrencyMode` de
-`@/lib/currency/breakIntoCoins`.
+import { useMemo, useState } from 'react';
+import type { CatalogItem, RaritySlug, CategorySlug } from '@/lib/catalog/types';
+import type { CurrencyMode } from '@/lib/currency/breakIntoCoins';
+import { ItemCard } from './ItemCard';
+import { ModificationModal } from './ModificationModal';
+import { CurrencyToggle } from './CurrencyToggle';
+
+const RARITIES: { id: RaritySlug; label: string }[] = [
+  { id: 'comum', label: 'Comum' },
+  { id: 'incomum', label: 'Incomum' },
+  { id: 'raro', label: 'Raro' },
+  { id: 'muitoraro', label: 'Muito Raro' },
+  { id: 'lendario', label: 'Lendário' },
+];
+
+const CATEGORIES: { id: CategorySlug; label: string }[] = [
+  { id: 'arcana', label: 'Arcana' },
+  { id: 'armamentos', label: 'Armamentos' },
+  { id: 'implementos', label: 'Implementos' },
+  { id: 'reliquias', label: 'Relíquias' },
+  { id: 'consumiveis', label: 'Consumíveis' },
+];
+
+export function CatalogExplorer({ items }: { items: CatalogItem[] }) {
+  const [search, setSearch] = useState('');
+  const [rarities, setRarities] = useState<Set<RaritySlug>>(new Set());
+  const [categories, setCategories] = useState<Set<CategorySlug>>(new Set());
+  const [currency, setCurrency] = useState<CurrencyMode>('braganca');
+  const [modalItem, setModalItem] = useState<CatalogItem | null>(null);
+
+  function toggle<T>(set: Set<T>, value: T, setSet: (s: Set<T>) => void) {
+    const next = new Set(set);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    setSet(next);
+  }
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((item) => {
+      if (q && !item.name.toLowerCase().includes(q)) return false;
+      if (rarities.size && !rarities.has(item.rarity)) return false;
+      if (categories.size && !item.categories.some((c) => categories.has(c))) return false;
+      return true;
+    });
+  }, [items, search, rarities, categories]);
+
+  return (
+    <main className="mx-auto max-w-6xl px-6 pb-16" style={{ color: 'var(--ink)' }}>
+      <div
+        className="mb-6 flex flex-wrap items-center gap-4 border-b py-4"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <label
+          className="flex min-w-[200px] flex-1 items-center gap-2 border px-3 py-2"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+        >
+          <input
+            type="text"
+            placeholder="Buscar por nome do item…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </label>
+
+        <div role="group" aria-label="Raridade" className="flex flex-wrap gap-2">
+          {RARITIES.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              aria-pressed={rarities.has(r.id)}
+              onClick={() => toggle(rarities, r.id, setRarities)}
+              className="border px-3 py-1.5 text-sm"
+              style={{
+                borderColor: 'var(--border)',
+                background: rarities.has(r.id) ? `var(--rarity-${r.id})` : 'var(--surface)',
+                color: rarities.has(r.id) ? 'var(--surface)' : 'var(--ink)',
+              }}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+
+        <CurrencyToggle mode={currency} onChange={setCurrency} />
+      </div>
+
+      <div className="grid grid-cols-[168px_1fr] gap-8">
+        <nav aria-label="Categorias" className="flex flex-col gap-1">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              aria-pressed={categories.has(c.id)}
+              onClick={() => toggle(categories, c.id, setCategories)}
+              className="border-l-2 px-3 py-2 text-left text-xs"
+              style={{
+                borderColor: categories.has(c.id) ? 'var(--gold)' : 'transparent',
+                background: categories.has(c.id) ? 'var(--surface)' : 'transparent',
+                color: categories.has(c.id) ? 'var(--ink)' : 'var(--ink-muted)',
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+
+        <section
+          className="grid gap-4"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(228px, 1fr))' }}
+        >
+          {filtered.length === 0 && (
+            <p style={{ color: 'var(--ink-muted)' }}>
+              Nenhuma relíquia encontrada com esses filtros.
+            </p>
+          )}
+          {filtered.map((item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              currency={currency}
+              onOpenModification={setModalItem}
+            />
+          ))}
+        </section>
+      </div>
+
+      {modalItem && <ModificationModal item={modalItem} onClose={() => setModalItem(null)} />}
+    </main>
+  );
+}
+```
 
 - [ ] **Step 4: Usar `<Coins>` em `ItemCard.tsx`**
 
-Adicione a prop `currency: CurrencyMode` em `ItemCard` e substitua a linha de preço:
+Substitua **todo o conteúdo** de `components/ItemCard.tsx` por:
 
 ```tsx
-<Coins priceGp={item.priceGp} mode={currency} />
-```
+import type { CatalogItem } from '@/lib/catalog/types';
+import type { CurrencyMode } from '@/lib/currency/breakIntoCoins';
+import { Coins } from './Coins';
 
-(remova a linha antiga `{item.priceGp.toFixed(2)} po`, e importe `Coins`).
+const RARITY_LABEL: Record<CatalogItem['rarity'], string> = {
+  comum: 'Comum',
+  incomum: 'Incomum',
+  raro: 'Raro',
+  muitoraro: 'Muito Raro',
+  lendario: 'Lendário',
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  arcana: 'Arcana',
+  armamentos: 'Armamentos',
+  implementos: 'Implementos',
+  reliquias: 'Relíquias',
+  consumiveis: 'Consumíveis',
+};
+
+export function ItemCard({
+  item,
+  currency,
+  onOpenModification,
+}: {
+  item: CatalogItem;
+  currency: CurrencyMode;
+  onOpenModification: (item: CatalogItem) => void;
+}) {
+  return (
+    <article
+      className="relative flex flex-col gap-2 border p-4"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+    >
+      <span
+        className="absolute right-0 top-0 h-0 w-0"
+        style={{
+          borderStyle: 'solid',
+          borderWidth: '0 22px 22px 0',
+          borderColor: `transparent var(--rarity-${item.rarity}) transparent transparent`,
+        }}
+      />
+
+      {item.modification?.kind === 'completa' && (
+        <button
+          type="button"
+          aria-label={`Ver anotação do mestre sobre ${item.name}`}
+          onClick={() => onOpenModification(item)}
+          className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-xs"
+          style={{ background: 'var(--seal)', color: 'var(--surface)' }}
+        >
+          ✦
+        </button>
+      )}
+      {item.modification?.kind === 'simples' && (
+        <span
+          title="Atributos ajustados pelo mestre"
+          className="absolute right-2 top-2 text-xs"
+          style={{ color: 'var(--ink-muted)' }}
+        >
+          ✦
+        </span>
+      )}
+
+      <div className="flex items-baseline justify-between text-xs">
+        <span style={{ color: 'var(--ink-muted)' }}>
+          {item.categories.map((c) => CATEGORY_LABEL[c]).join(', ')}
+        </span>
+        <span style={{ color: `var(--rarity-${item.rarity})` }}>
+          {RARITY_LABEL[item.rarity]}
+        </span>
+      </div>
+
+      <h3 className="text-xl" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+        {item.name}
+      </h3>
+
+      <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+        {item.type}
+        {item.attun ? ' · Sintonia' : ''}
+      </p>
+
+      <div className="mt-auto flex items-end justify-between gap-2 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+        <Coins priceGp={item.priceGp} mode={currency} />
+      </div>
+
+      {item.source && (
+        <p className="text-right text-xs italic" style={{ color: 'var(--ink-muted)' }}>
+          Proveniência: {item.source}
+        </p>
+      )}
+    </article>
+  );
+}
+```
 
 - [ ] **Step 5: Verificar manualmente**
 
